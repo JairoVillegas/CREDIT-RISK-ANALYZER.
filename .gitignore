@@ -1,0 +1,13 @@
+#Ignoramos los datos ya que son muy pesados
+*.csv
+
+# Ignoramos la base de datos SQLite y archivos temporales propios de la base de datos
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+
+#Ignoramos el virtual enviroment para evitar conflictos
+venv_credit_risk/

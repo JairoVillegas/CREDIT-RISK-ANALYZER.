@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="BASE_DATOS.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="0"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="22738"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="bureau" custom_title="0" dock_id="1" table="4,6:mainbureau"/><dock_state state="000000ff00000000fd00000001000000020000000000000000fc0100000001fb000000160064006f0063006b00420072006f00770073006500310100000000ffffffff0000011300ffffff000000000000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1*">CREATE VIEW vista_modelo_riesgo AS
+SELECT
+    a.SK_ID_CURR AS ID_CLIENTE, -- Este es el ID unico de cada cliente
+    a.TARGET, -- Esto es lo que queremos predecir, 1 si falló el pago, 0 si no
+    a.AMT_INCOME_TOTAL AS INGRESO_TOTAL, -- Cuanto es el ingreso total de la persona
+    a.AMT_CREDIT AS MONTO_SOLICITADO, -- Cuanto es el dinero total que nos está solicitando
+
+    -- DATOS DEMOGRAFICOS
+    a.CODE_GENDER AS GENERO,
+    a.FLAG_OWN_CAR AS TIENE_CARRO,
+    a.FLAG_OWN_REALTY AS TIENE_CASA,
+    a.CNT_CHILDREN AS NUM_HIJOS,
+    a.NAME_EDUCATION_TYPE AS NIVEL_EDUCATIVO,
+    a.NAME_FAMILY_STATUS AS ESTADO_CIVIL,
+    a.NAME_INCOME_TYPE AS TIPO_INGRESO, -- Pensionado, Trabajador, etc
+    a.OCCUPATION_TYPE AS OCUPACION,
+
+    -- Aplicamos feature engineering para conseguir el ratio de cuota sobre ingreso
+    (a.AMT_ANNUITY / a.AMT_INCOME_TOTAL) AS RATIO_ENTRE_CUOTA_E_INGRESO_TOTAL, -- Miramos que tanto de su ingreso se va en la cuota
+
+    -- Transformamos la edad en años (dividiendo entre 365 y quitando el signo negativo) para que el modelo y nosotros lo podamos leer mejor
+    (a.DAYS_BIRTH / -365) AS EDAD_YEARS,
+
+    -- Contamos cuantos creditos tiene activa la persona en otras entidades en la información del Bureau (historial)
+    COUNT(b.SK_ID_BUREAU) AS total_prestamos,
+    SUM(CASE WHEN b.CREDIT_ACTIVE = 'Active' THEN 1 ELSE 0 END) AS CREDITOS_ACTIVOS_HOY, -- Contamos solo los créditos que siguen abiertos usando una condición
+    AVG(b.AMT_CREDIT_SUM) AS PROMEDIO_DEUDA_EXTERNA,
+    SUM(b.AMT_CREDIT_SUM_OVERDUE) AS MORA_TOTAL_ACTUAL, -- Sumamos el total de dinero que debe
+    SUM(b.CNT_CREDIT_PROLONG) AS VECES_QUE_HA_PEDIDO_PRORROGAS -- Sumamos la cantidad de veces que ha pedido prórrogas
+
+FROM
+    application_train a
+LEFT JOIN
+    bureau b ON a.SK_ID_CURR = b.SK_ID_CURR -- Hacemos un left join para traer los datos del bureau (historial) hacia nuestro conjunto de train
+
+GROUP BY
+    a.SK_ID_CURR;
+</sql><current_tab id="0"/></tab_sql></sqlb_project>

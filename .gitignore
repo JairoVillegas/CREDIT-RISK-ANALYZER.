@@ -17,7 +17,7 @@ __pycache__/
 *.pyc
 
 
-#Ignoramos los archivos del sistema
+#Ignoramos los archivos del sistema para evitar problemas
 .vscode/
 .DS_Store
 Thumbs.db

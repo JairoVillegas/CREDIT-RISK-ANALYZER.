@@ -11,3 +11,13 @@
 
 #Ignoramos el virtual enviroment para evitar conflictos
 venv_credit_risk/
+
+#Ignoramos el Caché de python
+__pycache__/
+*.pyc
+
+
+#Ignoramos los archivos del sistema
+.vscode/
+.DS_Store
+Thumbs.db

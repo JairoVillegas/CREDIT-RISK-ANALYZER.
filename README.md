@@ -1,8 +1,4 @@
 
-#LIBRERIAS USADAS EN EL VIRTUAL ENVIROMENT:
-pip install pandas
-
-
 #DATOS
 Los datos usados para crear la vista con la cual se trabajará el entrenamiento fueron extraidos de: https://www.kaggle.com/competitions/home-credit-default-risk.
 se usaron los archivos:
